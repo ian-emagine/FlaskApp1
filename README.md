@@ -322,7 +322,7 @@ It returned the confirmation message which is the item that was deleted.
 {"item": "Setting up Flask"}
 ```
 
-I then tan the URL for displaying all theitems in the database to confirm that the item was removed.
+I then ran the URL for displaying all the items in the database to confirm that the item was removed.
 ```
 curl.exe -X GET http://127.0.0.1:5000/items/all
 ```
@@ -330,4 +330,72 @@ curl.exe -X GET http://127.0.0.1:5000/items/all
 It returned the list of items which now only contained one item.
 ```
 {"count": 1, "items": [["Implement POST Endpoint", "Not Started"]]}
+```
+
+I then ran added a function to helper.py to search the list for item names containing a keyword
+```
+def search_items(keyword):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("select * from items where item like ?", ('%'+keyword+'%',))
+        rows = c.fetchall()
+        return { "count": len(rows), "items": rows }
+    except Exception as e:
+        print('Error: ', e)
+        return None
+```
+
+I then created the corresponding function and route (/items/search) in main.py
+```
+@app.route('/items/search', methods=['GET'])
+def search_items():
+    # Get parameter from the URL
+    keyword = request.args.get('keyword')
+
+    # Get items from the helper
+    status = helper.search_items(keyword)
+
+    # Return 404 if error performing search
+    if status is None:
+        response = Response("{'error': 'Error performing search - %s'}"  % keyword, status=404 , mimetype='application/json')
+        return response
+
+    # Return status
+    res_data = {
+        'status': status
+    }
+
+    response = Response(json.dumps(res_data), status=200, mimetype='application/json')
+    return response
+```
+
+I then ran the URL to search for an item matching the keyword "end"
+```
+curl.exe -X GET http://127.0.0.1:5000/items/search?keyword=end
+```
+
+It returned the item in the list that contained the keyword in the name
+```
+{"status": {"count": 1, "items": [["Implement POST Endpoint", "Not Started"]]}}
+```
+
+I then ran the URL to add another item with "end" in the name
+```
+curl.exe -X POST http://127.0.0.1:5000/item/new -d '{\"item\": \"Implement another POST Endpoint\"}' -H "Content-Type: applictem/newation/json"
+```
+
+It returned the details of the newly added item
+```
+{"item": "Implement another POST Endpoint", "status": "Not Started"}
+```
+
+Then I ran the URL to search for items with "end" the name again
+```
+curl.exe -X GET http://127.0.0.1:5000/items/search?keyword=end
+```
+
+This time it returned both itemd in the list
+```
+{"status": {"count": 2, "items": [["Implement POST Endpoint", "Not Started"], ["Implement anment another POST Endpoint", "Not Started"]]}}
 ```
