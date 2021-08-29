@@ -395,7 +395,7 @@ Then I ran the URL to search for items with "end" the name again
 curl.exe -X GET http://127.0.0.1:5000/items/search?keyword=end
 ```
 
-This time it returned both itemd in the list
+This time it returned both items in the list
 ```
 {"status": {"count": 2, "items": [["Implement POST Endpoint", "Not Started"], ["Implement anment another POST Endpoint", "Not Started"]]}}
 ```
