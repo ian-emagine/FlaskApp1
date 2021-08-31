@@ -399,3 +399,160 @@ This time it returned both items in the list
 ```
 {"status": {"count": 2, "items": [["Implement POST Endpoint", "Not Started"], ["Implement anment another POST Endpoint", "Not Started"]]}}
 ```
+
+
+I then decided to put a front end on the app with Jigna templates. I only wanted to be able to do basic CRUD operations from a web interface. The following changes were made to the application.
+
+I added additional required functions from the Flask package within "main.py"
+```
+from flask import Flask, request, Response, render_template, redirect
+```
+
+I created a "templates" folder and inside this folder I placed these files
+```
+base.html
+index.html
+add.html
+```
+
+base.html contained:
+```
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>{{ the_title }}</title>
+
+	<!-- note the special href for files in the Flask "static" folder -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+</head>
+<body>
+
+<div id="container">
+
+  <!-- Jinja directives: page contents will go between them -->
+  {% block content %}
+  {% endblock %}
+
+</div>
+
+</body>
+</html>
+```
+
+index.html contained:
+```
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>To Do List</h1>
+
+<p>Click an item to edit it's status</p>
+<p><a href="{{ url_for( 'add_form' ) }}"><button>ADD NEW ITEM</button></a></p>
+<!-- pairs is a list that must be sent here by a route function
+     The list will contain 45 pairs: a presidency number, and a
+     president's name -->
+
+    <ul>
+    {% for item in result['items'] %}
+        <li>{{ item[0] }} ({{ item[1] }}): <a href="{{ url_for( 'update_status', item=item[0], status='in progress' ) }}">Start</a> | <a href="{{ url_for( 'update_status', item=item[0], status='completed' ) }}">Completed</a> | <a href="{{ url_for( 'delete_item', item=item[0] ) }}">Delete</a></li>
+    {% endfor %}
+    </ul>
+
+{% endblock %}
+```
+
+add.html contained:
+```
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Add Item</h1>
+
+<p>Click an item to edit it's status</p>
+<form method="POST" action="{{ url_for( 'add_item' ) }}">
+    <label for="item">Item name<input type="text" name="item"></label>
+    <input type="submit" name="Submit">
+</form>
+{% endblock %}
+```
+
+I created a folder called "static" and inside this folder I created the "CSS" folder. Inside this folder I added the "main.css" file containgn the following style rules:
+```
+html {
+    font-size: 100%;
+    box-sizing: border-box;
+}
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+body {
+    font-family: 'Verdana', sans-serif;
+    color: #333;
+    background: #238989;
+    margin: 0;
+}
+#container {
+    margin: 2em auto;
+    max-width: 740px;
+    padding: 2rem 4rem;
+    background: #fff;
+    overflow: auto;
+}
+h1 {
+    font-family: 'Georgia', serif;
+    font-size: 3rem;
+    margin: 0;
+    padding: 0.5rem 0;
+}
+p, li {
+    font-size: 1.4rem;
+    line-height: 1.5;
+}
+img {
+    display: block;
+    margin: auto;
+    max-width: 100%;
+}
+.right {
+    float: right;
+    margin: 1.5rem 0 1rem 1rem;
+    border: 1px solid #333;
+}
+
+/* links */
+
+a {
+    color: #009;
+    text-decoration: none;
+}
+a:hover {
+    color: #0cc;
+    text-decoration: underline;
+}
+
+/* media queries */
+
+@media (max-width: 800px) {
+    body {
+        background: #fff;
+    }
+    #container {
+        margin: 0;
+        width: 100%;
+        padding: 2rem;
+    }
+    h1 {
+        padding: 0 0 0.3rem 0;
+    }
+    .right {
+        float: none;
+        margin: 0;
+    }
+}
+```
