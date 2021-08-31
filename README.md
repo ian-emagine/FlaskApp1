@@ -659,3 +659,5 @@ Then I created a "requirements.txt" file from inside the project directory:
 ```
 pip freeze > requirements.txt
 ```
+
+Application was available to be viewed via webpage at http://127.0.0.1:5000/
