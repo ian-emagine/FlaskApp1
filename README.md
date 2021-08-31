@@ -590,3 +590,72 @@ def add_item():
 
     return redirect('/')
 ```
+
+A new function and route was created to display the add.html form:
+```
+@app.route('/item/add')
+def add_form():
+    return render_template('add.html', the_title="Add Item to To Do List")
+```
+
+The update_status function and corresponding route was changed as follows:
+```
+# @app.route('/item/update', methods=['PUT'])
+@app.route('/item/update', methods=['GET'])
+def update_status():
+    # Get item from the POST body
+    # req_data = request.get_json()
+    req_data = request.args
+    item = req_data['item']
+    status = req_data['status']
+
+    # Update item in the list
+    res_data = helper.update_status(item, status)
+
+    # Return error if the status could not be updated
+    if res_data is None:
+        response = Response("{'error': 'Error updating item - '" + item + ", " + status   +  "}", status=400 , mimetype='application/json')
+        return response
+
+    # Return response
+    response = Response(json.dumps(res_data), mimetype='application/json')
+
+    # return response
+    return redirect('/')
+```
+
+The delete_item function and corresponding route was changed as follows:
+```
+# @app.route('/item/remove', methods=['DELETE'])
+@app.route('/item/remove', methods=['GET'])
+def delete_item():
+    # Get item from the POST body
+    # req_data = request.get_json()
+    req_data = request.args
+    item = req_data['item']
+
+    # Delete item from the list
+    res_data = helper.delete_item(item)
+
+    # Return error if the item could not be deleted
+    if res_data is None:
+        response = Response("{'error': 'Error deleting item - '" + item +  "}", status=400 , mimetype='application/json')
+        return response
+
+    # Return response
+    response = Response(json.dumps(res_data), mimetype='application/json')
+
+    # return response
+    return redirect('/')
+```
+
+Then from in the terminal, I switched to the directory one level up from the project directory and activated the virtual environment. Then I went back into the project directory:
+```
+.\myenv\Scripts\Activate.ps1
+cd .\todo_service_flask\
+```
+
+Then I created a "requirements.txt" file from inside the project directory:
+```
+pip freeze > requirements.txt
+```
