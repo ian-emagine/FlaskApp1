@@ -556,3 +556,37 @@ a:hover {
     }
 }
 ```
+
+Then the hello_world function inside main.py was changed as follows:
+```
+def hello_world():
+    # Get items from the helper
+    res_data = helper.get_all_items()
+
+    # Return response
+    response = Response(json.dumps(res_data), mimetype='application/json')
+    json_response = response.get_json()
+    return render_template('index.html', result=json_response, the_title="To Do List")
+```
+
+The add_item function and the corresponding route were changed as follows:
+```@app.route('/item/new', methods=['POST'])
+def add_item():
+    # Get item from the POST body
+    # req_data = request.get_json()
+    req_data = request.form
+    item = req_data['item']
+
+    # Add item to the list
+    res_data = helper.add_to_list(item)
+
+    # Return error if item not added
+    if res_data is None:
+        response = Response("{'error': 'Item not added - " + item + "'}", status=400 , mimetype='application/json')
+        return response
+
+    # Return response
+    response = Response(json.dumps(res_data), mimetype='application/json')
+
+    return redirect('/')
+```
